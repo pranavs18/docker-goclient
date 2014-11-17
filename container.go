@@ -16,7 +16,7 @@ import (
 const defaultPort = "8080"
 const ip = "127.0.0.1"
 
-type NewRancherClient struct {
+type RancherClient struct {
 	Url string
 }
 
@@ -38,7 +38,28 @@ type Data struct {
 type Links_container map[string]string
 type Actions_container map[string]string
 
-func (client *NewRancherClient) listContainers(url string) {
+func NewRancherClient(url string) {
+	return &RancherClient{
+		url: url,
+	}
+}
+
+type Container struct {
+}
+
+type ListContainersResponse struct {
+	Data []Container
+}
+
+type ListContainersOpt struct {
+	Filters map[string]string
+}
+
+func (client *RancherClient) ListContainers() (ListContainersResponse, err) {
+
+}
+
+func (client *RancherClient) ListContainers(opts *ListContainersOpt) (ListContainersResponse, err) {
 	//client.Url := "http://" + ip + ":" + defaultPort + "/v1/containers"
 	client.Url = url
 	res, err := http.Get(client.Url)
@@ -68,7 +89,15 @@ func (client *NewRancherClient) listContainers(url string) {
 }
 
 func main() {
-	url := "http://" + ip + ":" + defaultPort + "/v1/containers"
-	client := new(NewRancherClient)
-	client.listContainers(url)
+	url := "http://" + ip + ":" + defaultPort + "/v1"
+	client := NewRancherClient(url)
+	data, err := client.ListContainers()
+
+	if err != nil {
+		// blah
+	}
+
+	for _, stuff := range data.Container {
+		//
+	}
 }
