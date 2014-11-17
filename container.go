@@ -16,6 +16,10 @@ import (
 const defaultPort = "8080"
 const ip = "127.0.0.1"
 
+type NewRancherClient struct {
+	Url string
+}
+
 type Payload struct {
 	Stuff []Data `json:"data"`
 }
@@ -34,13 +38,10 @@ type Data struct {
 type Links_container map[string]string
 type Actions_container map[string]string
 
-/*func serveRest(w http.ResponseWriter, r *http.Request) {
-	response := getJsonResponse()
-}*/
-
-func main() {
-	url := "http://" + ip + ":" + defaultPort + "/v1/containers"
-	res, err := http.Get(url)
+func (client *NewRancherClient) listContainers(url string) {
+	//client.Url := "http://" + ip + ":" + defaultPort + "/v1/containers"
+	client.Url = url
+	res, err := http.Get(client.Url)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -64,4 +65,10 @@ func main() {
 			stuff.AgentID, "\n", stuff.AllocationState, "\n", stuff.Compute,
 			"\n", stuff.Created, "\n", stuff.Id, "\n", stuff.Links)
 	}
+}
+
+func main() {
+	url := "http://" + ip + ":" + defaultPort + "/v1/containers"
+	client := new(NewRancherClient)
+	client.listContainers(url)
 }
