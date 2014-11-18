@@ -62,7 +62,17 @@ type ListContainersOpt struct {
 
 }*/
 
-func (client *RancherClient) ListContainers( /*opts *ListContainersOpt*/ ) /*(ListContainersResponse, error)*/ {
+func (client *RancherClient) ListContainers(opts *ListContainersOpt) /*(ListContainersResponse, error)*/ {
+	url, err := url.Parse(client.Url + "/containers")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	q := url.Query()
+	for k, _ := range opts.Filters {
+		q.Set(k, opts.Filters[k])
+	}
+	url.RawQuery = q.Encode()
 
 	//client.Url = opts.Filters
 	res, err := http.Get(client.Url)
@@ -113,7 +123,13 @@ func main() {
 
 	fmt.Println(url)
 	client := NewRancherClient(url.String())
-	client.ListContainers()
+	client.ListContainers(&ListContainersOpt{
+		Fields: map[string]string{
+			"val1": "val2",
+			"val1": "val2",
+		},
+	})
+
 	/*data, err2 := client.ListContainers()
 
 	if err2 != nil {
