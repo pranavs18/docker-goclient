@@ -62,10 +62,17 @@ type ListContainersOpt struct {
 
 }*/
 
-func (client *RancherClient) ListContainers( /*opts *ListContainersOpt*/ ) /*(ListContainersResponse, error)*/ {
-
-	//client.Url = opts.Filters
-	res, err := http.Get(client.Url)
+func (client *RancherClient) ListContainers(opts *ListContainersOpt) (ListContainersResponse, error) {
+	url, err := url.Parse(client.Url + "/containers")
+	url.Scheme = "http"
+	url.Host = ip + ":" + defaultPort
+	q := url.Query()
+	for k, _ := range opts.Filters {
+		q.Set(k, opts.Filters[k])
+	}
+	url.RawQuery = q.Encode()
+	fmt.Println(url.String())
+	res, err := http.Get(url.String())
 	if err != nil {
 		fmt.Println(err)
 		log.Fatal(err)
@@ -85,42 +92,45 @@ func (client *RancherClient) ListContainers( /*opts *ListContainersOpt*/ ) /*(Li
 		panic(err)
 	}
 
-	for _, stuff := range p.Stuff {
+	/*for _, stuff := range p.Stuff {
 		fmt.Println(stuff.AccountID, "\n", stuff.Actions, "\n",
 			stuff.AgentID, "\n", stuff.AllocationState, "\n", stuff.Compute,
 			"\n", stuff.Created, "\n", stuff.Id, "\n", stuff.Links)
-	}
+	}*/
 
-	// return
+	var result ListContainersResponse
+	var temp Container
+	temp.container = append(temp.container, p)
+	result.Data = append(result.Data, temp)
+	fmt.Println("Fetching JSON data from Cattle server...")
+	fmt.Println(result.Data)
+	/*for _, stuff := range p.Stuff {
+		result.Data = append(result.Data, )
+	}
+	*/
+	return result, err
 }
 
 func main() {
-	url, err := url.Parse("http://" + ip + ":" + defaultPort + "/v1/containers")
+	url, err := url.Parse("http://" + ip + ":" + defaultPort + "/v1")
 	if err != nil {
 		log.Fatal(err)
 	}
-	urlMap := make(map[string]string)
-	urlMap["arg1"] = "val1"
-	urlMap["arg2"] = "val2"
 
-	url.Scheme = "http"
-	url.Host = ip + ":" + defaultPort
-	q := url.Query()
-	for k, _ := range urlMap {
-		q.Set(k, urlMap[k])
-	}
-	url.RawQuery = q.Encode()
-
-	fmt.Println(url)
 	client := NewRancherClient(url.String())
-	client.ListContainers()
-	/*data, err2 := client.ListContainers()
+	data, err2 := client.ListContainers(&ListContainersOpt{
+		Filters: map[string]string{
+			"key1": "val1",
+			"key2": "val2",
+		},
+	})
 
 	if err2 != nil {
 		panic(err2)
 	}
+	/*
+		for _, stuff := range data.Data {
 
-	for _, stuff := range data.Data {
-
-	}*/
+		}*/
+	fmt.Print("JSON data retrieved", data.Data)
 }
