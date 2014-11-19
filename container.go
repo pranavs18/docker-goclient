@@ -17,6 +17,9 @@ import (
 
 const defaultPort = "8080"
 const ip = "127.0.0.1"
+const protocol = "http"
+const separator = ":"
+const versionAPI = "/v1"
 
 type RancherClient struct {
 	Url string
@@ -62,8 +65,8 @@ type ListContainersOpt struct {
 func (client *RancherClient) ListContainers(opts *ListContainersOpt) (ListContainersResponse, error) {
 	// fetch the base URL
 	url, err := url.Parse(client.Url + "/containers")
-	url.Scheme = "http"
-	url.Host = ip + ":" + defaultPort
+	url.Scheme = protocol
+	url.Host = ip + separator + defaultPort
 	q := url.Query()
 	for k, _ := range opts.Filters {
 		q.Set(k, opts.Filters[k])
@@ -109,8 +112,12 @@ func (client *RancherClient) ListContainers(opts *ListContainersOpt) (ListContai
 	return result, err
 }
 
+/*func (client *RancherClient) CreateContainer(opts *CreateContainersOpt, uuid string) (CreateContainersResponse, error) {
+
+}*/
+
 func main() {
-	url, err := url.Parse("http://" + ip + ":" + defaultPort + "/v1")
+	url, err := url.Parse(protocol + separator + "//" + ip + separator + defaultPort + versionAPI)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -128,4 +135,5 @@ func main() {
 	}
 	fmt.Println("Data Retrieved .... ")
 	log.Println(data.Data)
+
 }
