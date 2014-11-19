@@ -58,11 +58,9 @@ type ListContainersOpt struct {
 	Filters map[string]string
 }
 
-/*func (client *RancherClient) ListContainers() (ListContainersResponse, err) {
-
-}*/
-
+// function to retrieve container's response
 func (client *RancherClient) ListContainers(opts *ListContainersOpt) (ListContainersResponse, error) {
+	// fetch the base URL
 	url, err := url.Parse(client.Url + "/containers")
 	url.Scheme = "http"
 	url.Host = ip + ":" + defaultPort
@@ -92,22 +90,22 @@ func (client *RancherClient) ListContainers(opts *ListContainersOpt) (ListContai
 		panic(err)
 	}
 
-	/*for _, stuff := range p.Stuff {
-		fmt.Println(stuff.AccountID, "\n", stuff.Actions, "\n",
-			stuff.AgentID, "\n", stuff.AllocationState, "\n", stuff.Compute,
-			"\n", stuff.Created, "\n", stuff.Id, "\n", stuff.Links)
-	}*/
-
 	var result ListContainersResponse
 	var temp Container
 	temp.container = append(temp.container, p)
 	result.Data = append(result.Data, temp)
-	fmt.Println("Fetching JSON data from Cattle server...")
-	fmt.Println(result.Data)
-	/*for _, stuff := range p.Stuff {
-		result.Data = append(result.Data, )
+	fmt.Println("Fetching JSON data from the Cattle server...")
+	for _, stuff := range result.Data {
+		fmt.Println(" Account ID "+stuff.container[0].Stuff[0].AccountID, "\n",
+			stuff.container[0].Stuff[0].Actions, "\n",
+			"Agent ID "+stuff.container[0].Stuff[0].AgentID, "\n",
+			"Allocation State "+stuff.container[0].Stuff[0].AllocationState, "\n",
+			"Compute "+stuff.container[0].Stuff[0].Compute, "\n",
+			"Created "+stuff.container[0].Stuff[0].Created, "\n",
+			"ID "+stuff.container[0].Stuff[0].Id, "\n",
+			stuff.container[0].Stuff[0].Links)
+
 	}
-	*/
 	return result, err
 }
 
@@ -128,9 +126,6 @@ func main() {
 	if err2 != nil {
 		panic(err2)
 	}
-	/*
-		for _, stuff := range data.Data {
-
-		}*/
-	fmt.Print("JSON data retrieved", data.Data)
+	fmt.Println("Data Retrieved .... ")
+	log.Println(data.Data)
 }
