@@ -61,7 +61,7 @@ type ListContainersOpt struct {
 	Filters map[string]string
 }
 
-// function to retrieve container's response
+// Go function to retrieve container's response
 func (client *RancherClient) ListContainers(opts *ListContainersOpt) (ListContainersResponse, error) {
 	// fetch the base URL
 	url, err := url.Parse(client.Url + "/containers")
@@ -72,7 +72,6 @@ func (client *RancherClient) ListContainers(opts *ListContainersOpt) (ListContai
 		q.Set(k, opts.Filters[k])
 	}
 	url.RawQuery = q.Encode()
-	fmt.Println(url.String())
 	res, err := http.Get(url.String())
 	if err != nil {
 		fmt.Println(err)
@@ -112,10 +111,6 @@ func (client *RancherClient) ListContainers(opts *ListContainersOpt) (ListContai
 	return result, err
 }
 
-/*func (client *RancherClient) CreateContainer(opts *CreateContainersOpt, uuid string) (CreateContainersResponse, error) {
-
-}*/
-
 func main() {
 	url, err := url.Parse(protocol + separator + "//" + ip + separator + defaultPort + versionAPI)
 	if err != nil {
@@ -123,17 +118,36 @@ func main() {
 	}
 
 	client := NewRancherClient(url.String())
-	data, err2 := client.ListContainers(&ListContainersOpt{
+	data, errListContainer := client.ListContainers(&ListContainersOpt{
 		Filters: map[string]string{
 			"key1": "val1",
 			"key2": "val2",
 		},
 	})
 
-	if err2 != nil {
-		panic(err2)
+	if errListContainer != nil {
+		panic(errListContainer)
+		log.Fatal(errListContainer)
 	}
+
 	fmt.Println("Data Retrieved .... ")
 	log.Println(data.Data)
+
+	fmt.Println("Creating new container ... ")
+	client2 := NewRancherClient(url.String())
+	createData, errCreateContainer := client2.CreateContainer(&CreateContainersOpt{
+		createFilters: map[string]string{
+			"imageUuid": "docker:nginx",
+			"name":      "dummyContainer",
+		},
+	})
+
+	if errCreateContainer != nil {
+		panic(errCreateContainer)
+		log.Fatal(errCreateContainer)
+	}
+
+	fmt.Println("Container created successfully")
+	log.Println(createData.Data)
 
 }
