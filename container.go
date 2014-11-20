@@ -150,4 +150,20 @@ func main() {
 	fmt.Println("Container created successfully")
 	log.Println(createData.Data)
 
+	fmt.Println("Stopping an active container ... ")
+	client3 := NewRancherClient(url.String())
+	stopData, errStopContainer := client3.StopContainer(&StopContainersOpt{
+		stopFilters: map[string]string{
+			"action": "stop",
+		},
+	})
+
+	if errStopContainer != nil {
+		panic(errStopContainer)
+		log.Fatal(errStopContainer)
+	}
+
+	fmt.Println("Container stopped successfully")
+	log.Println(stopData.Data)
+
 }
